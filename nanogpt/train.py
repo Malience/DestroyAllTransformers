@@ -8,16 +8,17 @@ torch.set_default_device(device)
 torch.manual_seed(1337)
 
 # hyperparameters
-batch_size = 32
-block_size = 8
-max_iters = 3000
-eval_interval = 300
+batch_size = 64
+block_size = 256
+max_iters = 5000
+eval_interval = 500
 eval_iters = 200
-learning_rate = 1e-2
+learning_rate = 3e-4
+n_embd = 384
 # -----------
 
 # input
-text_file = 'TinyShakespeare'
+text_file = 'input/TinyShakespeare'
 
 with open(text_file + '.txt', 'r', encoding='utf-8') as f:
     text = f.read()
@@ -60,7 +61,7 @@ def estimate_loss():
 
 xb, yb = get_batch()
 
-model = BigramLanguageModel(tokenizer.vocab_size)
+model = BigramLanguageModel(tokenizer.vocab_size, block_size, n_embd)
 out, loss = model(xb, yb)
 print(out.shape)
 print(loss)
@@ -80,5 +81,5 @@ for iter in range(max_iters):
         losses = estimate_loss()
         print(f"step {iter}: train loss {losses['train']:.4f}, val loss {losses['val']:.4f}")
 
-print(tokenizer.decode(model.generate(torch.zeros((1,1), dtype=torch.long), max_new_tokens=500)[0].tolist()))
+print(tokenizer.decode(model.generate(torch.zeros((1,1), dtype=torch.long), max_new_tokens=500, block_size=block_size)[0].tolist()))
 
